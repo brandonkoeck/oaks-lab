@@ -1,17 +1,20 @@
-import TypeChecker from './components/TypeChecker'
+import { getAllPokemon } from '@/lib/pokemonApi'
+import PokemonList from './components/PokemonList'
 
-export default function Home() {
+export default async function Home() {
+  const pokemon = await getAllPokemon()
+
   return (
-    <main className="flex flex-col items-center px-6 py-12 min-h-screen">
-      <div className="w-full max-w-2xl">
-        <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 mb-1">
-          Pokémon Type Checker
+    <main className="max-w-4xl mx-auto px-4 py-8">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold mb-1" style={{ color: '#e0e8f0' }}>
+          Pokédex
         </h1>
-        <p className="text-zinc-500 dark:text-zinc-400 mb-10 text-sm">
-          Covers all 18 types including Generation 9 — select one or two types to see weaknesses, resistances, and immunities.
+        <p className="text-sm" style={{ color: '#7a8caa' }}>
+          All generations · {pokemon.length.toLocaleString()} Pokémon
         </p>
-        <TypeChecker />
       </div>
+      <PokemonList pokemon={pokemon} />
     </main>
   )
 }
