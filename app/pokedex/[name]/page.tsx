@@ -80,7 +80,7 @@ export default async function PokemonPage({ params }: { params: Promise<{ name: 
           )}
           <div>
             <p className="text-sm font-mono mb-1" style={{ color: '#7a8caa' }}>
-              #{String(pokemon.id).padStart(4, '0')}
+              #{pokemon.speciesId}
             </p>
             <h1 className="text-3xl font-bold mb-3" style={{ color: '#e0e8f0' }}>
               {pokemon.displayName}

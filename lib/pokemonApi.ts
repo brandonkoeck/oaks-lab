@@ -2,6 +2,7 @@ import { unstable_cache } from 'next/cache'
 
 export interface Pokemon {
   id: number
+  speciesId: number
   name: string
   displayName: string
   types: string[]
@@ -64,8 +65,13 @@ async function fetchJSON(url: string): Promise<unknown> {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function parsePokemon(p: any): Pokemon {
+  const speciesId = parseInt(
+    (p.species?.url as string | undefined)?.split('/').filter(Boolean).pop() ?? String(p.id),
+    10
+  )
   return {
     id: p.id,
+    speciesId,
     name: p.name,
     displayName: formatName(p.name),
     types: p.types.map((t: { type: { name: string } }) => capitalize(t.type.name)),
@@ -92,7 +98,7 @@ export const getAllPokemon = unstable_cache(
       }
     }
 
-    return pokemon.sort((a, b) => a.id - b.id)
+    return pokemon.sort((a, b) => a.speciesId - b.speciesId || a.id - b.id)
   },
   ['all-pokemon'],
   { revalidate: false }

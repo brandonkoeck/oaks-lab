@@ -33,7 +33,7 @@ function Pagination({
   const end = Math.min(total, page + 2)
   const visible = Array.from({ length: end - start + 1 }, (_, i) => start + i)
 
-  const btnBase = 'h-8 rounded text-sm font-medium transition-colors'
+  const btnBase = 'h-8 rounded text-sm font-medium transition-colors cursor-pointer disabled:cursor-default'
   const btnStyle = { backgroundColor: '#2a3a5a', color: '#e0e8f0' }
   const activeStyle = { backgroundColor: '#4a6fa5', color: '#ffffff' }
 
@@ -142,7 +142,7 @@ export default function PokemonList({ pokemon }: { pokemon: Pokemon[] }) {
                 className="hover:brightness-125 transition-all"
               >
                 <td className="py-2 px-4 font-mono text-xs" style={{ color: '#7a8caa' }}>
-                  #{String(p.id).padStart(4, '0')}
+                  #{p.speciesId}
                 </td>
                 <td className="py-2 px-4">
                   <div className="flex items-center gap-2">
