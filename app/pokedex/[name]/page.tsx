@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { getAllPokemon, getPokemon } from '@/lib/pokemonApi'
 import { calculateEffectiveness, TYPE_COLORS, PokemonType } from '@/lib/typeData'
+import { STAT_MAX, BST_MAX, statColor, STAT_LABELS } from '@/lib/stats'
 
 export async function generateStaticParams() {
   const pokemon = await getAllPokemon()
@@ -87,6 +88,43 @@ export default async function PokemonPage({ params }: { params: Promise<{ name: 
             </h1>
             <div className="flex gap-2 flex-wrap">
               {pokemon.types.map(t => <TypeBadge key={t} type={t} />)}
+            </div>
+          </div>
+        </div>
+
+        {/* Base Stats */}
+        <h2 className="text-base font-semibold mb-4" style={{ color: '#a0b4cc' }}>
+          Base Stats
+        </h2>
+        <div className="space-y-2 mb-8">
+          {(Object.keys(STAT_LABELS) as (keyof typeof STAT_LABELS)[]).map(key => {
+            const value = pokemon.stats[key]
+            const max = STAT_MAX[key]
+            const pct = Math.min(100, (value / max) * 100)
+            return (
+              <div key={key} className="flex items-center gap-3">
+                <span className="text-xs w-16 text-right shrink-0" style={{ color: '#a0b4cc' }}>
+                  {STAT_LABELS[key]}
+                </span>
+                <span className="text-sm font-mono w-8 text-right shrink-0" style={{ color: '#e0e8f0' }}>
+                  {value}
+                </span>
+                <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ backgroundColor: '#111827' }}>
+                  <div className="h-full rounded-full transition-all"
+                    style={{ width: `${pct}%`, backgroundColor: statColor(value) }} />
+                </div>
+              </div>
+            )
+          })}
+          {/* Total */}
+          <div className="flex items-center gap-3 pt-1" style={{ borderTop: '1px solid #2d3d60' }}>
+            <span className="text-xs w-16 text-right shrink-0 font-semibold" style={{ color: '#a0b4cc' }}>Total</span>
+            <span className="text-sm font-mono font-semibold w-8 text-right shrink-0" style={{ color: '#e0e8f0' }}>
+              {pokemon.stats.total}
+            </span>
+            <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ backgroundColor: '#111827' }}>
+              <div className="h-full rounded-full"
+                style={{ width: `${Math.min(100, (pokemon.stats.total / BST_MAX) * 100)}%`, backgroundColor: '#60a5fa' }} />
             </div>
           </div>
         </div>

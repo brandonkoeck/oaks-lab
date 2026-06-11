@@ -1,5 +1,15 @@
 import { unstable_cache } from 'next/cache'
 
+export interface PokemonStats {
+  hp: number
+  attack: number
+  defense: number
+  specialAttack: number
+  specialDefense: number
+  speed: number
+  total: number
+}
+
 export interface Pokemon {
   id: number
   speciesId: number
@@ -7,6 +17,7 @@ export interface Pokemon {
   displayName: string
   types: string[]
   sprite: string | null
+  stats: PokemonStats
 }
 
 const SPECIAL_NAMES: Record<string, string> = {
@@ -69,6 +80,16 @@ function parsePokemon(p: any): Pokemon {
     (p.species?.url as string | undefined)?.split('/').filter(Boolean).pop() ?? String(p.id),
     10
   )
+
+  const rawStats = (p.stats ?? []) as { base_stat: number; stat: { name: string } }[]
+  const getStat = (name: string) => rawStats.find(s => s.stat.name === name)?.base_stat ?? 0
+  const hp             = getStat('hp')
+  const attack         = getStat('attack')
+  const defense        = getStat('defense')
+  const specialAttack  = getStat('special-attack')
+  const specialDefense = getStat('special-defense')
+  const speed          = getStat('speed')
+
   return {
     id: p.id,
     speciesId,
@@ -76,6 +97,8 @@ function parsePokemon(p: any): Pokemon {
     displayName: formatName(p.name),
     types: p.types.map((t: { type: { name: string } }) => capitalize(t.type.name)),
     sprite: p.sprites?.front_default ?? null,
+    stats: { hp, attack, defense, specialAttack, specialDefense, speed,
+             total: hp + attack + defense + specialAttack + specialDefense + speed },
   }
 }
 
@@ -100,7 +123,7 @@ export const getAllPokemon = unstable_cache(
 
     return pokemon.sort((a, b) => a.speciesId - b.speciesId || a.id - b.id)
   },
-  ['all-pokemon'],
+  ['all-pokemon-v2'],
   { revalidate: false }
 )
 
