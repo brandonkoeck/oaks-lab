@@ -29,8 +29,8 @@ function StatCell({ value, max, isBst = false }: { value: number; max: number; i
       <div className="text-xs font-medium mb-1" style={{ color: isBst ? '#a0b4cc' : '#e0e8f0' }}>
         {value}
       </div>
-      <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: '#111827' }}>
-        <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: color }} />
+      <div className="h-1 overflow-hidden" style={{ backgroundColor: '#111827' }}>
+        <div className="h-full" style={{ width: `${pct}%`, backgroundColor: color }} />
       </div>
     </td>
   )
@@ -46,7 +46,7 @@ function Pagination({ page, total, onChange }: { page: number; total: number; on
 
   return (
     <div className="flex items-center gap-1 justify-center mt-6 flex-wrap">
-      <button onClick={() => onChange(page - 1)} disabled={page === 1}
+      <button onClick={() => onChange(page - 1)} disabled={page === 1 || undefined}
         className={`${btnBase} px-3 disabled:opacity-30`} style={btnStyle}>Prev</button>
       {start > 1 && <>
         <button onClick={() => onChange(1)} className={`${btnBase} w-8`} style={btnStyle}>1</button>
@@ -60,7 +60,7 @@ function Pagination({ page, total, onChange }: { page: number; total: number; on
         {end < total - 1 && <span className="text-sm" style={{ color: '#7a8caa' }}>…</span>}
         <button onClick={() => onChange(total)} className={`${btnBase} w-8`} style={btnStyle}>{total}</button>
       </>}
-      <button onClick={() => onChange(page + 1)} disabled={page === total}
+      <button onClick={() => onChange(page + 1)} disabled={page === total || undefined}
         className={`${btnBase} px-3 disabled:opacity-30`} style={btnStyle}>Next</button>
     </div>
   )
@@ -127,8 +127,8 @@ export default function PokemonList({ pokemon }: { pokemon: Pokemon[] }) {
                 </td>
                 <td className="py-2 px-4">
                   <div className="flex items-center gap-2">
-                    {p.sprite ? (
-                      <Image src={p.sprite} alt={p.displayName} width={40} height={40} unoptimized className="pixelated" />
+                    {(p.officialArtwork ?? p.sprite) ? (
+                      <Image src={p.officialArtwork ?? p.sprite!} alt={p.displayName} width={40} height={40} unoptimized className="object-contain" />
                     ) : (
                       <div className="w-10 h-10 rounded" style={{ backgroundColor: '#2a3a5a' }} />
                     )}

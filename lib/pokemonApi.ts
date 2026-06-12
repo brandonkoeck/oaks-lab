@@ -1,5 +1,12 @@
 import { unstable_cache } from 'next/cache'
 
+export interface PokemonAbility {
+  name: string
+  displayName: string
+  isHidden: boolean
+  description: string
+}
+
 export interface PokemonStats {
   hp: number
   attack: number
@@ -17,7 +24,9 @@ export interface Pokemon {
   displayName: string
   types: string[]
   sprite: string | null
+  officialArtwork: string | null
   stats: PokemonStats
+  abilities: PokemonAbility[]
 }
 
 const SPECIAL_NAMES: Record<string, string> = {
@@ -75,7 +84,7 @@ async function fetchJSON(url: string): Promise<unknown> {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function parsePokemon(p: any): Pokemon {
+async function parsePokemon(p: any): Promise<Pokemon> {
   const speciesId = parseInt(
     (p.species?.url as string | undefined)?.split('/').filter(Boolean).pop() ?? String(p.id),
     10
@@ -90,6 +99,38 @@ function parsePokemon(p: any): Pokemon {
   const specialDefense = getStat('special-defense')
   const speed          = getStat('speed')
 
+  const rawAbilities = (p.abilities ?? []) as {
+    ability: { name: string; url: string }
+    is_hidden: boolean
+    slot: number
+  }[]
+
+  const abilities = await Promise.all(
+    rawAbilities
+      .sort((a, b) => a.slot - b.slot)
+      .map(async (a) => {
+        try {
+          const data = await fetchJSON(a.ability.url) as {
+            effect_entries: { short_effect: string; language: { name: string } }[]
+          }
+          const entry = data.effect_entries?.find(e => e.language.name === 'en')
+          return {
+            name: a.ability.name,
+            displayName: formatName(a.ability.name),
+            isHidden: a.is_hidden,
+            description: entry?.short_effect ?? '',
+          }
+        } catch {
+          return {
+            name: a.ability.name,
+            displayName: formatName(a.ability.name),
+            isHidden: a.is_hidden,
+            description: '',
+          }
+        }
+      })
+  )
+
   return {
     id: p.id,
     speciesId,
@@ -97,8 +138,10 @@ function parsePokemon(p: any): Pokemon {
     displayName: formatName(p.name),
     types: p.types.map((t: { type: { name: string } }) => capitalize(t.type.name)),
     sprite: p.sprites?.front_default ?? null,
+    officialArtwork: p.sprites?.other?.['official-artwork']?.front_default ?? null,
     stats: { hp, attack, defense, specialAttack, specialDefense, speed,
              total: hp + attack + defense + specialAttack + specialDefense + speed },
+    abilities,
   }
 }
 
@@ -116,14 +159,15 @@ export const getAllPokemon = unstable_cache(
       const results = await Promise.all(
         batch.map(({ url }) => fetchJSON(url).catch(() => null))
       )
-      for (const p of results) {
-        if (p) pokemon.push(parsePokemon(p))
-      }
+      const parsed = await Promise.all(
+        results.filter(Boolean).map(p => parsePokemon(p))
+      )
+      pokemon.push(...parsed)
     }
 
     return pokemon.sort((a, b) => a.speciesId - b.speciesId || a.id - b.id)
   },
-  ['all-pokemon-v2'],
+  ['all-pokemon-v4'],
   { revalidate: false }
 )
 

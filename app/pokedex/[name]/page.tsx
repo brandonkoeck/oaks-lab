@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ name: str
   if (!pokemon) return {}
   return {
     title: `${pokemon.displayName} — Pokédex`,
-    description: `Type weaknesses and resistances for ${pokemon.displayName} (${pokemon.types.join('/')}).`,
+    description: `Type weaknesses, resistances, abilities, and base stats for ${pokemon.displayName} (${pokemon.types.join('/')}).`,
   }
 }
 
@@ -40,123 +40,171 @@ function TypeBadge({ type }: { type: string }) {
   )
 }
 
+const statKeys = Object.keys(STAT_LABELS) as (keyof typeof STAT_LABELS)[]
+
 export default async function PokemonPage({ params }: { params: Promise<{ name: string }> }) {
   const { name } = await params
   const pokemon = await getPokemon(name)
   if (!pokemon) notFound()
 
   const effectiveness = calculateEffectiveness(pokemon.types)
-
   const rows = WEAKNESS_ROWS.map(row => ({
     ...row,
-    types: effectiveness
-      .filter(e => e.multiplier === row.mult)
-      .map(e => e.type),
+    types: effectiveness.filter(e => e.multiplier === row.mult).map(e => e.type),
   })).filter(row => row.types.length > 0)
 
   return (
-    <main className="max-w-2xl mx-auto px-4 py-8">
+    <main className="max-w-5xl mx-auto px-4 py-8">
       <Link
         href="/"
-        className="text-sm hover:underline mb-6 inline-block"
+        className="text-sm hover:underline mb-4 inline-block"
         style={{ color: '#6eb5ff' }}
       >
         ← Back to Pokédex
       </Link>
 
-      <div className="rounded-xl p-6" style={{ backgroundColor: '#1e2a42', border: '1px solid #2d3d60' }}>
-        {/* Header */}
-        <div className="flex items-center gap-6 mb-8">
-          {pokemon.sprite ? (
-            <Image
-              src={pokemon.sprite}
-              alt={pokemon.displayName}
-              width={96}
-              height={96}
-              unoptimized
-              className="pixelated"
-            />
-          ) : (
-            <div className="w-24 h-24 rounded-lg" style={{ backgroundColor: '#2a3a5a' }} />
-          )}
-          <div>
-            <p className="text-sm font-mono mb-1" style={{ color: '#7a8caa' }}>
-              #{pokemon.speciesId}
-            </p>
-            <h1 className="text-3xl font-bold mb-3" style={{ color: '#e0e8f0' }}>
-              {pokemon.displayName}
-            </h1>
-            <div className="flex gap-2 flex-wrap">
+      {/* Page header — name above everything */}
+      <div className="mb-6">
+        <p className="text-sm font-mono mb-1" style={{ color: '#7a8caa' }}>#{pokemon.speciesId}</p>
+        <h1 className="text-4xl font-bold" style={{ color: '#e0e8f0' }}>{pokemon.displayName}</h1>
+      </div>
+
+      <div className="grid gap-4 items-start lg:grid-cols-[2fr_3fr]">
+
+        {/* ── Left column ── */}
+        <div className="space-y-4">
+
+          {/* Sprite + types card */}
+          <div className="rounded-xl p-6 text-center" style={{ backgroundColor: '#1e2a42', border: '1px solid #2d3d60' }}>
+            {pokemon.officialArtwork ? (
+              <div className="relative w-48 h-48 mx-auto mb-4">
+                <Image
+                  src={pokemon.officialArtwork}
+                  alt={pokemon.displayName}
+                  fill
+                  className="object-contain"
+                  unoptimized
+                />
+              </div>
+            ) : pokemon.sprite ? (
+              <Image
+                src={pokemon.sprite}
+                alt={pokemon.displayName}
+                width={120}
+                height={120}
+                unoptimized
+                className="pixelated mx-auto mb-4"
+              />
+            ) : (
+              <div className="w-48 h-48 rounded-lg mx-auto mb-4" style={{ backgroundColor: '#2a3a5a' }} />
+            )}
+            <p className="text-xs mb-2" style={{ color: '#7a8caa' }}>{pokemon.displayName}&apos;s Type</p>
+            <div className="flex gap-2 justify-center flex-wrap">
               {pokemon.types.map(t => <TypeBadge key={t} type={t} />)}
             </div>
           </div>
-        </div>
 
-        {/* Base Stats */}
-        <h2 className="text-base font-semibold mb-4" style={{ color: '#a0b4cc' }}>
-          Base Stats
-        </h2>
-        <div className="space-y-2 mb-8">
-          {(Object.keys(STAT_LABELS) as (keyof typeof STAT_LABELS)[]).map(key => {
-            const value = pokemon.stats[key]
-            const max = STAT_MAX[key]
-            const pct = Math.min(100, (value / max) * 100)
-            return (
-              <div key={key} className="flex items-center gap-3">
-                <span className="text-xs w-16 text-right shrink-0" style={{ color: '#a0b4cc' }}>
-                  {STAT_LABELS[key]}
-                </span>
-                <span className="text-sm font-mono w-8 text-right shrink-0" style={{ color: '#e0e8f0' }}>
-                  {value}
-                </span>
-                <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ backgroundColor: '#111827' }}>
-                  <div className="h-full rounded-full transition-all"
-                    style={{ width: `${pct}%`, backgroundColor: statColor(value) }} />
-                </div>
+          {/* Base Stats card */}
+          <div className="rounded-xl p-5" style={{ backgroundColor: '#1e2a42', border: '1px solid #2d3d60' }}>
+            <h2 className="text-sm font-semibold mb-4 text-center" style={{ color: '#a0b4cc' }}>
+              Base Stats
+            </h2>
+            <div className="grid grid-cols-2 gap-x-5 gap-y-3">
+              {statKeys.map(key => {
+                const value = pokemon.stats[key]
+                const max = STAT_MAX[key]
+                const pct = Math.min(100, (value / max) * 100)
+                return (
+                  <div key={key}>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span style={{ color: '#a0b4cc' }}>{STAT_LABELS[key]}:</span>
+                      <span className="font-mono font-medium" style={{ color: '#e0e8f0' }}>{value}</span>
+                    </div>
+                    <div className="h-2.5 overflow-hidden" style={{ backgroundColor: '#111827' }}>
+                      <div className="h-full" style={{ width: `${pct}%`, backgroundColor: statColor(value) }} />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+            <div className="mt-4 pt-3" style={{ borderTop: '1px solid #2d3d60' }}>
+              <div className="flex justify-between text-xs mb-1">
+                <span className="font-semibold" style={{ color: '#a0b4cc' }}>Total:</span>
+                <span className="font-mono font-semibold" style={{ color: '#e0e8f0' }}>{pokemon.stats.total}</span>
               </div>
-            )
-          })}
-          {/* Total */}
-          <div className="flex items-center gap-3 pt-1" style={{ borderTop: '1px solid #2d3d60' }}>
-            <span className="text-xs w-16 text-right shrink-0 font-semibold" style={{ color: '#a0b4cc' }}>Total</span>
-            <span className="text-sm font-mono font-semibold w-8 text-right shrink-0" style={{ color: '#e0e8f0' }}>
-              {pokemon.stats.total}
-            </span>
-            <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ backgroundColor: '#111827' }}>
-              <div className="h-full rounded-full"
-                style={{ width: `${Math.min(100, (pokemon.stats.total / BST_MAX) * 100)}%`, backgroundColor: '#60a5fa' }} />
+              <div className="h-2.5 overflow-hidden" style={{ backgroundColor: '#111827' }}>
+                <div className="h-full"
+                  style={{ width: `${Math.min(100, (pokemon.stats.total / BST_MAX) * 100)}%`, backgroundColor: '#60a5fa' }} />
+              </div>
             </div>
           </div>
+
         </div>
 
-        {/* Weaknesses & Resistances */}
-        <h2 className="text-base font-semibold mb-3" style={{ color: '#a0b4cc' }}>
-          Weaknesses &amp; Resistances
-        </h2>
-        <p className="text-xs mb-4" style={{ color: '#7a8caa' }}>
-          Damage multipliers when attacking {pokemon.displayName} with each type.
-        </p>
+        {/* ── Right column ── */}
+        <div className="space-y-4">
 
-        <div className="rounded-lg overflow-hidden" style={{ border: '1px solid #2d3d60' }}>
-          <table className="w-full text-sm">
-            <tbody>
-              {rows.map(row => (
-                <tr key={row.mult}>
-                  <td
-                    className="py-3 px-4 font-bold text-center w-14 text-base"
-                    style={{ backgroundColor: row.labelBg, color: '#e0e8f0' }}
-                  >
-                    {row.label}
-                  </td>
-                  <td className="py-3 px-4" style={{ backgroundColor: row.rowBg }}>
-                    <div className="flex flex-wrap gap-2">
-                      {row.types.map(t => <TypeBadge key={t} type={t} />)}
+          {/* Abilities card */}
+          <div className="rounded-xl p-5" style={{ backgroundColor: '#1e2a42', border: '1px solid #2d3d60' }}>
+            <h2 className="text-sm font-semibold mb-1 text-center" style={{ color: '#a0b4cc' }}>
+              {pokemon.displayName}&apos;s Abilities
+            </h2>
+            <p className="text-xs text-center mb-4" style={{ color: '#7a8caa' }}>
+              Here are what abilities {pokemon.displayName} can possibly have, along with their effects.
+            </p>
+            <div className="space-y-3">
+              {pokemon.abilities.map(ability => (
+                <div key={ability.name} className="rounded-lg overflow-hidden" style={{ border: '1px solid #3d5080' }}>
+                  <div className="py-2 px-4 flex items-center" style={{ backgroundColor: '#162032' }}>
+                    <div className="flex-1" />
+                    <span className="font-bold text-sm" style={{ color: '#e0e8f0' }}>{ability.displayName}</span>
+                    <div className="flex-1 flex justify-end">
+                      {ability.isHidden && (
+                        <span className="text-xs font-bold tracking-wide" style={{ color: '#7a8caa' }}>HIDDEN</span>
+                      )}
                     </div>
-                  </td>
-                </tr>
+                  </div>
+                  {ability.description && (
+                    <div className="py-3 px-4" style={{ backgroundColor: '#243450' }}>
+                      <p className="text-xs leading-relaxed" style={{ color: '#c0d0e0' }}>{ability.description}</p>
+                    </div>
+                  )}
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          </div>
+
+          {/* Weaknesses & Resistances card */}
+          <div className="rounded-xl p-5" style={{ backgroundColor: '#1e2a42', border: '1px solid #2d3d60' }}>
+            <h2 className="text-sm font-semibold mb-1 text-center" style={{ color: '#a0b4cc' }}>
+              Weaknesses &amp; Resistances
+            </h2>
+            <p className="text-xs text-center mb-4" style={{ color: '#7a8caa' }}>
+              Below is a list of what {pokemon.displayName}&apos;s weakness and resistance is to various types.
+            </p>
+            <div className="rounded-lg overflow-hidden" style={{ border: '1px solid #2d3d60' }}>
+              <table className="w-full text-sm">
+                <tbody>
+                  {rows.map(row => (
+                    <tr key={row.mult}>
+                      <td
+                        className="py-3 px-4 font-bold text-center w-14 text-base"
+                        style={{ backgroundColor: row.labelBg, color: '#e0e8f0' }}
+                      >
+                        {row.label}
+                      </td>
+                      <td className="py-3 px-4" style={{ backgroundColor: row.rowBg }}>
+                        <div className="flex flex-wrap gap-2">
+                          {row.types.map(t => <TypeBadge key={t} type={t} />)}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
         </div>
       </div>
     </main>
