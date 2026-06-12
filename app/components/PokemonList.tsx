@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import type { Pokemon } from '@/lib/pokemonApi'
 import { TYPE_COLORS, PokemonType } from '@/lib/typeData'
-import { STAT_MAX, BST_MAX, statColor } from '@/lib/stats'
+import { STAT_MAX, BST_MAX, statColor, bstColor } from '@/lib/stats'
 
 const PAGE_SIZE = 25
 
@@ -13,8 +13,8 @@ function TypeBadge({ type }: { type: string }) {
   const color = TYPE_COLORS[type as PokemonType] ?? '#777'
   return (
     <span
-      style={{ backgroundColor: color, textShadow: '0 1px 1px rgba(0,0,0,0.5)' }}
-      className="px-2 py-0.5 rounded text-white text-xs font-bold uppercase tracking-wide"
+      style={{ backgroundColor: color, textShadow: '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000', boxShadow: '0 3px 0 rgba(0,0,0,0.35), 0 4px 6px rgba(0,0,0,0.3)' }}
+      className="px-1.5 py-px rounded text-white text-xs font-semibold uppercase tracking-wide"
     >
       {type}
     </span>
@@ -23,7 +23,7 @@ function TypeBadge({ type }: { type: string }) {
 
 function StatCell({ value, max, isBst = false }: { value: number; max: number; isBst?: boolean }) {
   const pct = Math.min(100, (value / max) * 100)
-  const color = isBst ? '#60a5fa' : statColor(value)
+  const color = isBst ? bstColor(value) : statColor(value)
   return (
     <td className="py-2 px-1 text-center" style={{ minWidth: '46px' }}>
       <div className="text-xs font-medium mb-1" style={{ color: isBst ? '#a0b4cc' : '#e0e8f0' }}>
@@ -47,7 +47,7 @@ function Pagination({ page, total, onChange }: { page: number; total: number; on
   return (
     <div className="flex items-center gap-1 justify-center mt-6 flex-wrap">
       <button onClick={() => onChange(page - 1)} disabled={page === 1 || undefined}
-        className={`${btnBase} px-3 disabled:opacity-30`} style={btnStyle}>Prev</button>
+        className={`${btnBase} px-3 disabled:opacity-30`} style={btnStyle} suppressHydrationWarning>Prev</button>
       {start > 1 && <>
         <button onClick={() => onChange(1)} className={`${btnBase} w-8`} style={btnStyle}>1</button>
         {start > 2 && <span className="text-sm" style={{ color: '#7a8caa' }}>…</span>}
@@ -61,7 +61,7 @@ function Pagination({ page, total, onChange }: { page: number; total: number; on
         <button onClick={() => onChange(total)} className={`${btnBase} w-8`} style={btnStyle}>{total}</button>
       </>}
       <button onClick={() => onChange(page + 1)} disabled={page === total || undefined}
-        className={`${btnBase} px-3 disabled:opacity-30`} style={btnStyle}>Next</button>
+        className={`${btnBase} px-3 disabled:opacity-30`} style={btnStyle} suppressHydrationWarning>Next</button>
     </div>
   )
 }

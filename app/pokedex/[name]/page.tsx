@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { getAllPokemon, getPokemon } from '@/lib/pokemonApi'
 import { calculateEffectiveness, TYPE_COLORS, PokemonType } from '@/lib/typeData'
-import { STAT_MAX, BST_MAX, statColor, STAT_LABELS } from '@/lib/stats'
+import { STAT_MAX, BST_MAX, statColor, bstColor, STAT_LABELS } from '@/lib/stats'
 
 export async function generateStaticParams() {
   const pokemon = await getAllPokemon()
@@ -23,8 +23,8 @@ export async function generateMetadata({ params }: { params: Promise<{ name: str
 const WEAKNESS_ROWS = [
   { mult: 4,    label: '4×',  rowBg: '#4a1010', labelBg: '#6b1a1a' },
   { mult: 2,    label: '2×',  rowBg: '#3a1a0a', labelBg: '#5a2a10' },
-  { mult: 0.5,  label: '½×',  rowBg: '#0a2818', labelBg: '#0f3820' },
-  { mult: 0.25, label: '¼×',  rowBg: '#071e12', labelBg: '#0c2e1a' },
+  { mult: 0.5,  label: '½',   rowBg: '#0a2818', labelBg: '#0f3820' },
+  { mult: 0.25, label: '¼',   rowBg: '#071e12', labelBg: '#0c2e1a' },
   { mult: 0,    label: '0×',  rowBg: '#141422', labelBg: '#1e1e36' },
 ]
 
@@ -32,8 +32,8 @@ function TypeBadge({ type }: { type: string }) {
   const color = TYPE_COLORS[type as PokemonType] ?? '#777'
   return (
     <span
-      style={{ backgroundColor: color, textShadow: '0 1px 1px rgba(0,0,0,0.5)' }}
-      className="px-3 py-1 rounded text-white text-sm font-bold uppercase tracking-wide"
+      style={{ backgroundColor: color, textShadow: '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000', boxShadow: '0 3px 0 rgba(0,0,0,0.35), 0 4px 6px rgba(0,0,0,0.3)' }}
+      className="px-1.5 py-px rounded text-white text-xs font-semibold uppercase tracking-wide"
     >
       {type}
     </span>
@@ -130,11 +130,11 @@ export default async function PokemonPage({ params }: { params: Promise<{ name: 
             <div className="mt-4 pt-3" style={{ borderTop: '1px solid #2d3d60' }}>
               <div className="flex justify-between text-xs mb-1">
                 <span className="font-semibold" style={{ color: '#a0b4cc' }}>Total:</span>
-                <span className="font-mono font-semibold" style={{ color: '#e0e8f0' }}>{pokemon.stats.total}</span>
+                <span className="font-mono font-semibold" style={{ color: bstColor(pokemon.stats.total) }}>{pokemon.stats.total}</span>
               </div>
               <div className="h-2.5 overflow-hidden" style={{ backgroundColor: '#111827' }}>
                 <div className="h-full"
-                  style={{ width: `${Math.min(100, (pokemon.stats.total / BST_MAX) * 100)}%`, backgroundColor: '#60a5fa' }} />
+                  style={{ width: `${Math.min(100, (pokemon.stats.total / BST_MAX) * 100)}%`, backgroundColor: bstColor(pokemon.stats.total) }} />
               </div>
             </div>
           </div>
@@ -188,12 +188,12 @@ export default async function PokemonPage({ params }: { params: Promise<{ name: 
                   {rows.map(row => (
                     <tr key={row.mult}>
                       <td
-                        className="py-3 px-4 font-bold text-center w-14 text-base"
+                        className="py-1.5 px-4 font-bold text-center w-14 text-base"
                         style={{ backgroundColor: row.labelBg, color: '#e0e8f0' }}
                       >
                         {row.label}
                       </td>
-                      <td className="py-3 px-4" style={{ backgroundColor: row.rowBg }}>
+                      <td className="py-1.5 px-4" style={{ backgroundColor: row.rowBg }}>
                         <div className="flex flex-wrap gap-2">
                           {row.types.map(t => <TypeBadge key={t} type={t} />)}
                         </div>
