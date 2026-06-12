@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { getAllPokemon, getPokemon } from '@/lib/pokemonApi'
 import { calculateEffectiveness, TYPE_COLORS, PokemonType } from '@/lib/typeData'
 import { STAT_MAX, BST_MAX, statColor, bstColor, STAT_LABELS } from '@/lib/stats'
+import ComparePanel from '@/app/components/ComparePanel'
 
 export async function generateStaticParams() {
   const pokemon = await getAllPokemon()
@@ -44,7 +45,7 @@ const statKeys = Object.keys(STAT_LABELS) as (keyof typeof STAT_LABELS)[]
 
 export default async function PokemonPage({ params }: { params: Promise<{ name: string }> }) {
   const { name } = await params
-  const pokemon = await getPokemon(name)
+  const [pokemon, allPokemon] = await Promise.all([getPokemon(name), getAllPokemon()])
   if (!pokemon) notFound()
 
   const effectiveness = calculateEffectiveness(pokemon.types)
@@ -82,6 +83,7 @@ export default async function PokemonPage({ params }: { params: Promise<{ name: 
                   src={pokemon.officialArtwork}
                   alt={pokemon.displayName}
                   fill
+                  priority
                   className="object-contain"
                   unoptimized
                 />
@@ -103,6 +105,10 @@ export default async function PokemonPage({ params }: { params: Promise<{ name: 
               {pokemon.types.map(t => <TypeBadge key={t} type={t} />)}
             </div>
           </div>
+
+          {/* Compare + Base Stats side by side */}
+          <div className="grid grid-cols-2 gap-4">
+          <ComparePanel allPokemon={allPokemon} currentName={pokemon.name} />
 
           {/* Base Stats card */}
           <div className="rounded-xl p-5" style={{ backgroundColor: '#1e2a42', border: '1px solid #2d3d60' }}>
@@ -138,6 +144,7 @@ export default async function PokemonPage({ params }: { params: Promise<{ name: 
               </div>
             </div>
           </div>
+          </div>{/* end compare+stats grid */}
 
         </div>
 

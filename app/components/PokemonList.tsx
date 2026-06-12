@@ -128,7 +128,7 @@ export default function PokemonList({ pokemon }: { pokemon: Pokemon[] }) {
                 <td className="py-2 px-4">
                   <div className="flex items-center gap-2">
                     {(p.officialArtwork ?? p.sprite) ? (
-                      <Image src={p.officialArtwork ?? p.sprite!} alt={p.displayName} width={40} height={40} unoptimized className="object-contain" />
+                      <Image src={p.officialArtwork ?? p.sprite!} alt={p.displayName} width={40} height={40} unoptimized priority={i === 0} className="object-contain" />
                     ) : (
                       <div className="w-10 h-10 rounded" style={{ backgroundColor: '#2a3a5a' }} />
                     )}

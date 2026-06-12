@@ -165,9 +165,11 @@ export const getAllPokemon = unstable_cache(
       pokemon.push(...parsed)
     }
 
-    return pokemon.sort((a, b) => a.speciesId - b.speciesId || a.id - b.id)
+    return pokemon
+      .filter(p => !p.name.endsWith('-gmax'))
+      .sort((a, b) => a.speciesId - b.speciesId || a.id - b.id)
   },
-  ['all-pokemon-v4'],
+  ['all-pokemon-v5'],
   { revalidate: false }
 )
 
