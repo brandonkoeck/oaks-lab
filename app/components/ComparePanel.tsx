@@ -20,7 +20,7 @@ function CompareStats({ pokemon, onBack }: { pokemon: Pokemon; onBack: () => voi
       </button>
 
       {/* Header — same height as "Base Stats" h2 */}
-      <h2 className="text-sm font-semibold mb-4 text-center flex items-center justify-center gap-1.5" style={{ color: '#a0b4cc' }}>
+      <h2 className="text-sm font-semibold mb-4 text-center flex items-center justify-center gap-1.5 min-w-0" style={{ color: '#a0b4cc' }}>
         {(pokemon.officialArtwork ?? pokemon.sprite) && (
           <Image
             src={pokemon.officialArtwork ?? pokemon.sprite!}
@@ -31,7 +31,7 @@ function CompareStats({ pokemon, onBack }: { pokemon: Pokemon; onBack: () => voi
             className="object-contain shrink-0"
           />
         )}
-        {pokemon.displayName}
+        <span className="truncate" title={pokemon.displayName}>{pokemon.displayName}</span>
       </h2>
 
       {/* Stats grid — identical to Base Stats card */}
@@ -43,7 +43,7 @@ function CompareStats({ pokemon, onBack }: { pokemon: Pokemon; onBack: () => voi
           return (
             <div key={key}>
               <div className="flex justify-between text-xs mb-1">
-                <span style={{ color: '#a0b4cc' }}>{STAT_LABELS[key]}:</span>
+                <span className="whitespace-nowrap" style={{ color: '#a0b4cc' }}>{STAT_LABELS[key]}:</span>
                 <span className="font-mono font-medium" style={{ color: '#e0e8f0' }}>{value}</span>
               </div>
               <div className="h-2.5 overflow-hidden" style={{ backgroundColor: '#111827' }}>
@@ -113,7 +113,7 @@ export default function ComparePanel({
         style={{ backgroundColor: '#2a3a5a', color: '#e0e8f0', border: '1px solid #3d5080' }}
       />
 
-      <div className="overflow-y-auto" style={{ maxHeight: '180px' }}>
+      <div className="overflow-y-auto" style={{ height: '136px' }}>
         {query.trim() && results.length === 0 && (
           <p className="text-xs text-center py-4" style={{ color: '#7a8caa' }}>No results</p>
         )}
@@ -134,18 +134,17 @@ export default function ComparePanel({
                 className="object-contain shrink-0"
               />
             )}
-            <span className="text-xs font-medium flex-1 min-w-0 truncate" style={{ color: '#e0e8f0' }}>
+            <span className="text-xs font-medium flex-1 min-w-0 truncate" title={p.displayName} style={{ color: '#e0e8f0' }}>
               {p.displayName}
             </span>
           </button>
         ))}
+        {!query.trim() && (
+          <p className="text-xs text-center mt-3" style={{ color: '#7a8caa' }}>
+            Compare Pokémon stats
+          </p>
+        )}
       </div>
-
-      {!query.trim() && (
-        <p className="text-xs text-center mt-3" style={{ color: '#7a8caa' }}>
-          Type a name or type to search
-        </p>
-      )}
     </div>
   )
 }

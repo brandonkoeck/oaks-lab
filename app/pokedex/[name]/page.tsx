@@ -100,7 +100,7 @@ export default async function PokemonPage({ params }: { params: Promise<{ name: 
             ) : (
               <div className="w-48 h-48 rounded-lg mx-auto mb-4" style={{ backgroundColor: '#2a3a5a' }} />
             )}
-            <p className="text-xs mb-2" style={{ color: '#7a8caa' }}>{pokemon.displayName}&apos;s Type</p>
+            <p className="text-xs mb-2 truncate" title={`${pokemon.displayName}'s Type`} style={{ color: '#7a8caa' }}>{pokemon.displayName}&apos;s Type</p>
             <div className="flex gap-2 justify-center flex-wrap">
               {pokemon.types.map(t => <TypeBadge key={t} type={t} />)}
             </div>
@@ -123,7 +123,7 @@ export default async function PokemonPage({ params }: { params: Promise<{ name: 
                 return (
                   <div key={key}>
                     <div className="flex justify-between text-xs mb-1">
-                      <span style={{ color: '#a0b4cc' }}>{STAT_LABELS[key]}:</span>
+                      <span className="whitespace-nowrap" style={{ color: '#a0b4cc' }}>{STAT_LABELS[key]}:</span>
                       <span className="font-mono font-medium" style={{ color: '#e0e8f0' }}>{value}</span>
                     </div>
                     <div className="h-2.5 overflow-hidden" style={{ backgroundColor: '#111827' }}>
@@ -153,7 +153,7 @@ export default async function PokemonPage({ params }: { params: Promise<{ name: 
 
           {/* Abilities card */}
           <div className="rounded-xl p-5" style={{ backgroundColor: '#1e2a42', border: '1px solid #2d3d60' }}>
-            <h2 className="text-sm font-semibold mb-1 text-center" style={{ color: '#a0b4cc' }}>
+            <h2 className="text-sm font-semibold mb-1 text-center truncate" title={`${pokemon.displayName}'s Abilities`} style={{ color: '#a0b4cc' }}>
               {pokemon.displayName}&apos;s Abilities
             </h2>
             <p className="text-xs text-center mb-4" style={{ color: '#7a8caa' }}>
