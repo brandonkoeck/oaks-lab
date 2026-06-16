@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Pokémon Type Checker",
-  description: "Check Pokémon type weaknesses, resistances, and immunities — including Generation 9.",
+  title: "Oak's Lab",
+  description: "Oak's Lab — Pokémon type weaknesses, resistances, base stats, abilities, and team tools.",
 };
 
 export default function RootLayout({

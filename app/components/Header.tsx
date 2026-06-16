@@ -9,7 +9,7 @@ export default function Header() {
           className="text-xl font-bold tracking-tight hover:opacity-80 transition-opacity"
           style={{ color: '#e0e8f0' }}
         >
-          Pokédex
+          Oak&apos;s Lab
         </Link>
       </div>
     </header>

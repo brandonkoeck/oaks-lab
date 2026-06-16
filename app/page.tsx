@@ -8,7 +8,7 @@ export default async function Home() {
     <main className="max-w-4xl mx-auto px-4 py-8">
       <div className="mb-6">
         <h1 className="text-2xl font-bold mb-1" style={{ color: '#e0e8f0' }}>
-          Pokédex
+          Oak&apos;s Lab
         </h1>
         <p className="text-sm" style={{ color: '#7a8caa' }}>
           All generations · {pokemon.length.toLocaleString()} Pokémon

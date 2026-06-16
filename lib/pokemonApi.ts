@@ -63,14 +63,59 @@ const SPECIAL_NAMES: Record<string, string> = {
   'walking-wake': 'Walking Wake',
   'raging-bolt': 'Raging Bolt',
   'gouging-fire': 'Gouging Fire',
+  // Galarian Mr. Mime needs the period
+  'mr-mime-galar': 'Galarian Mr. Mime',
+  // Tauros Paldean breeds — region in middle, not last part
+  'tauros-paldea-combat': 'Combat Breed Paldean Tauros',
+  'tauros-paldea-blaze':  'Blaze Breed Paldean Tauros',
+  'tauros-paldea-aqua':   'Aqua Breed Paldean Tauros',
+  // Darmanitan Zen Modes
+  'darmanitan-zen':       'Zen Mode Darmanitan',
+  'darmanitan-galar-zen': 'Zen Mode Galarian Darmanitan',
+  // Kyurem fusions — descriptor precedes name officially
+  'kyurem-black': 'Black Kyurem',
+  'kyurem-white': 'White Kyurem',
+  // Necrozma fusions
+  'necrozma-dusk-mane':   'Dusk Mane Necrozma',
+  'necrozma-dawn-wings':  'Dawn Wings Necrozma',
+  // Calyrex riders
+  'calyrex-ice-rider':    'Ice Rider Calyrex',
+  'calyrex-shadow-rider': 'Shadow Rider Calyrex',
 }
 
 function formatName(name: string): string {
   if (SPECIAL_NAMES[name]) return SPECIAL_NAMES[name]
-  return name
-    .split('-')
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ')
+
+  const parts = name.split('-')
+  const cap = (w: string) => w.charAt(0).toUpperCase() + w.slice(1)
+
+  const regionAdjective: Record<string, string> = {
+    alola: 'Alolan',
+    galar: 'Galarian',
+    paldea: 'Paldean',
+    hisui: 'Hisuian',
+  }
+
+  // Mega: {name}-mega or {name}-mega-x/y
+  const megaIdx = parts.indexOf('mega')
+  if (megaIdx !== -1) {
+    const baseName = parts.slice(0, megaIdx).map(cap).join(' ')
+    const suffix = parts.slice(megaIdx + 1).map(w => w.toUpperCase()).join(' ')
+    return suffix ? `Mega ${baseName} ${suffix}` : `Mega ${baseName}`
+  }
+
+  // Primal: {name}-primal
+  if (parts[parts.length - 1] === 'primal') {
+    return `Primal ${parts.slice(0, -1).map(cap).join(' ')}`
+  }
+
+  // Regional variant: {name}-{region}
+  const adjective = regionAdjective[parts[parts.length - 1]]
+  if (adjective) {
+    return `${adjective} ${parts.slice(0, -1).map(cap).join(' ')}`
+  }
+
+  return parts.map(cap).join(' ')
 }
 
 function capitalize(s: string): string {
@@ -145,6 +190,27 @@ async function parsePokemon(p: any): Promise<Pokemon> {
   }
 }
 
+const COSMETIC_FORMS = new Set([
+  // Minior color duplicates — red-meteor and red (core) kept as representatives
+  'minior-orange-meteor', 'minior-yellow-meteor', 'minior-green-meteor',
+  'minior-blue-meteor',   'minior-indigo-meteor', 'minior-violet-meteor',
+  'minior-orange', 'minior-yellow', 'minior-green',
+  'minior-blue',   'minior-indigo', 'minior-violet',
+  // Cramorant battle-only forms
+  'cramorant-gulping', 'cramorant-gorging',
+  // Morpeko Hangry (battle-only type swap)
+  'morpeko-hangry',
+  // Mimikyu Busted (battle-only transformation)
+  'mimikyu-busted',
+])
+
+function isCosmeticForm(name: string): boolean {
+  if (COSMETIC_FORMS.has(name)) return true
+  if (name.startsWith('pikachu-')) return true  // all cap & costume forms
+  if (name.includes('-totem')) return true       // all totem forms
+  return false
+}
+
 export const getAllPokemon = unstable_cache(
   async (): Promise<Pokemon[]> => {
     const list = await fetchJSON('https://pokeapi.co/api/v2/pokemon?limit=2000') as {
@@ -166,10 +232,10 @@ export const getAllPokemon = unstable_cache(
     }
 
     return pokemon
-      .filter(p => !p.name.endsWith('-gmax'))
+      .filter(p => !p.name.endsWith('-gmax') && !isCosmeticForm(p.name))
       .sort((a, b) => a.speciesId - b.speciesId || a.id - b.id)
   },
-  ['all-pokemon-v5'],
+  ['all-pokemon-v7'],
   { revalidate: false }
 )
 

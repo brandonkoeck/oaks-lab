@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ name: str
   const pokemon = await getPokemon(name)
   if (!pokemon) return {}
   return {
-    title: `${pokemon.displayName} — Pokédex`,
+    title: `${pokemon.displayName} — Oak's Lab`,
     description: `Type weaknesses, resistances, abilities, and base stats for ${pokemon.displayName} (${pokemon.types.join('/')}).`,
   }
 }
@@ -61,7 +61,7 @@ export default async function PokemonPage({ params }: { params: Promise<{ name: 
         className="text-sm hover:underline mb-4 inline-block"
         style={{ color: '#6eb5ff' }}
       >
-        ← Back to Pokédex
+        ← Back to Oak&apos;s Lab
       </Link>
 
       {/* Page header — name above everything */}
