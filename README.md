@@ -1,36 +1,31 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Oak's Lab
 
-## Getting Started
+A full-featured Pokédex built with Next.js, TypeScript, and React. Explore type weaknesses, base stats, abilities, and side-by-side stat comparisons for 1,000+ Pokémon.
 
-First, run the development server:
+<img width="2545" height="1328" alt="Oaks Lab Demo" src="https://github.com/user-attachments/assets/8c30b3de-6d97-4143-8f48-22e231f974a7" />
+
+**Live site:** https://typechart.vercel.app
+
+---
+
+## Features
+
+- Type weakness & resistance chart for all 18 types
+- Base stats with color-coded bars and BST totals
+- Abilities with descriptions
+- Side-by-side stat comparison tool
+- Live search and filtering
+- Statically generated pages for all 1,000+ Pokémon forms
+
+## Tech Stack
+
+- **Framework:** Next.js 15 (App Router, static site generation)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS
+- **Data:** [PokéAPI](https://pokeapi.co/)
+
+## Running Locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
